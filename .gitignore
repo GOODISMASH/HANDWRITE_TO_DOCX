@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment and editor settings
+.env
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Runtime data and model cache
+uploads/*
+!uploads/.gitkeep
+processed/*
+!processed/.gitkeep
+results/*
+!results/.gitkeep
+.cache/
+*.log

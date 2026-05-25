@@ -1,0 +1,21 @@
+services:
+  handwriting-ocr:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      OCR_MODEL_NAME: ${OCR_MODEL_NAME:-kazars24/trocr-base-handwritten-ru}
+      OCR_DEBUG: ${OCR_DEBUG:-1}
+      OCR_BATCH_SIZE: ${OCR_BATCH_SIZE:-2}
+      OCR_NUM_BEAMS: ${OCR_NUM_BEAMS:-1}
+      HF_HUB_DISABLE_XET: ${HF_HUB_DISABLE_XET:-1}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-replace-with-a-long-random-value}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./processed:/app/processed
+      - ./results:/app/results
+      - huggingface-cache:/app/.cache/huggingface
+    restart: unless-stopped
+
+volumes:
+  huggingface-cache:

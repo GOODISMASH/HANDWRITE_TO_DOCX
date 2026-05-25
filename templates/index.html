@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Загрузка изображения | OCR{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Распознавание рукописного текста</h1>
+    <p class="lead">
+        Загрузите изображение с рукописным текстом, проверьте результат распознавания
+        и экспортируйте исправленный текст в Word-документ.
+    </p>
+</div>
+
+<div class="grid-layout">
+    <form class="card upload-card" id="uploadForm" action="{{ url_for('recognize') }}" method="post" enctype="multipart/form-data">
+        <label class="upload-zone" for="imageInput">
+            <span class="upload-icon">+</span>
+            <span class="upload-title">Выберите изображение</span>
+            <span class="upload-subtitle">PNG, JPG или JPEG до 16 МБ</span>
+            <input id="imageInput" name="image" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+        </label>
+
+        <div class="preview-wrap" id="previewWrap" hidden>
+            <img id="imagePreview" alt="Предпросмотр загруженного изображения">
+        </div>
+
+        <p class="form-error" id="formError" role="alert"></p>
+
+        <button class="button primary-button" type="submit">Распознать текст</button>
+    </form>
+
+    <aside class="card tips-card">
+        <h2>Подсказки для лучшего результата</h2>
+        <ul class="tips-list">
+            <li>Фото должно быть чётким.</li>
+            <li>Лист лучше фотографировать ровно.</li>
+            <li>Желательно хорошее освещение.</li>
+            <li>Лучше использовать тёмную ручку на светлой бумаге.</li>
+        </ul>
+    </aside>
+</div>
+{% endblock %}

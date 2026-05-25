@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Результат распознавания | OCR{% endblock %}
+
+{% block content %}
+<div class="result-header">
+    <div>
+        <p class="eyebrow">Результат OCR</p>
+        <h1>Проверьте распознанный текст</h1>
+    </div>
+    <a class="button secondary-button" href="{{ url_for('index') }}">Распознать другое изображение</a>
+</div>
+
+<div class="image-grid">
+    <figure class="card image-card">
+        <figcaption>Исходное изображение</figcaption>
+        <img src="{{ url_for('uploaded_file', filename=original_filename) }}" alt="Исходное изображение">
+    </figure>
+
+    <figure class="card image-card">
+        <figcaption>Обрезанная область текста{% if scale_factor > 1 %} (x{{ scale_factor|int }}){% endif %}</figcaption>
+        <img src="{{ url_for('processed_file', filename=cropped_filename) }}" alt="Обрезанная область текста">
+    </figure>
+</div>
+
+<section class="manual-section">
+    <div class="section-header">
+        <h2>Ручная разметка строк</h2>
+        <span class="mode-label">{{ "Ручная" if segmentation_mode == "manual" else "Авто" }}</span>
+    </div>
+    <form class="card segmentation-card" id="manualSegmentationForm" action="{{ url_for('recognize_manual') }}" method="post">
+        <input type="hidden" name="original_filename" value="{{ original_filename }}">
+        <input type="hidden" name="manual_cuts" id="manualCutsInput">
+        <div class="segmentation-stage">
+            <canvas
+                id="segmentationCanvas"
+                data-image-url="{{ url_for('processed_file', filename=ocr_ready_filename) }}"
+                title="Щелчок добавляет разделитель; щелчок рядом с линией удаляет его."
+                aria-label="Область ручной разметки строк"
+            ></canvas>
+        </div>
+        <script id="manualCutsData" type="application/json">{{ manual_cut_positions | tojson }}</script>
+        <div class="segmentation-actions">
+            <button class="button secondary-button" type="button" id="undoCutButton">Убрать последнюю</button>
+            <button class="button secondary-button" type="button" id="resetCutsButton">Сбросить</button>
+            <button class="button secondary-button" type="button" id="clearCutsButton">Очистить</button>
+            <button class="button primary-button" type="submit">Повторить OCR</button>
+        </div>
+    </form>
+</section>
+
+{% if mask_filename and annotated_filename %}
+<section class="debug-section">
+    <div class="section-header">
+        <h2>Диагностика сегментации</h2>
+    </div>
+    <div class="image-grid">
+        <figure class="card image-card debug-card">
+            <figcaption>Маска чернил</figcaption>
+            <img src="{{ url_for('processed_file', filename=mask_filename) }}" alt="Маска обнаруженных чернил">
+        </figure>
+
+        <figure class="card image-card debug-card">
+            <figcaption>Границы строк и фрагментов</figcaption>
+            <img src="{{ url_for('processed_file', filename=annotated_filename) }}" alt="Найденные строки и фрагменты">
+        </figure>
+
+        <figure class="card image-card debug-card">
+            <figcaption>RGB для OCR с осветлённой клеткой</figcaption>
+            <img src="{{ url_for('processed_file', filename=ocr_ready_filename) }}" alt="Изображение, подготовленное для OCR">
+        </figure>
+    </div>
+</section>
+{% endif %}
+
+<section class="lines-section">
+    <div class="section-header">
+        <h2>Найденные строки</h2>
+        <span class="line-count">{{ line_items|length }}</span>
+    </div>
+    <div class="line-grid">
+        {% for line in line_items %}
+            {% set line_number = loop.index %}
+            <article class="card line-item">
+                <h3>Строка {{ line_number }}</h3>
+                <img class="line-preview" src="{{ url_for('processed_file', filename=line.filename) }}" alt="Строка {{ line_number }}">
+
+                <div class="fragment-grid">
+                    {% for fragment_filename in line.fragment_filenames %}
+                        <figure class="fragment-image">
+                            <figcaption>OCR-фрагмент {{ loop.index }}</figcaption>
+                            <img src="{{ url_for('processed_file', filename=fragment_filename) }}" alt="OCR-фрагмент {{ loop.index }} строки {{ line_number }}">
+                        </figure>
+                    {% endfor %}
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="text-comparison">
+    <div class="section-header">
+        <h2>Результат распознавания</h2>
+    </div>
+    <div class="text-grid">
+        <article class="card raw-text-card">
+            <h3>Версия OCR</h3>
+            <pre>{{ recognized_text }}</pre>
+        </article>
+
+        <form class="card editor-card" action="{{ url_for('export') }}" method="post">
+            <label for="recognizedText">Исправленная версия</label>
+            <textarea id="recognizedText" name="recognized_text" rows="14">{{ corrected_text }}</textarea>
+            <div class="editor-actions">
+                <button class="button primary-button" type="submit">Скачать DOCX</button>
+                <a class="button secondary-button" href="{{ url_for('index') }}">Распознать другое изображение</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
