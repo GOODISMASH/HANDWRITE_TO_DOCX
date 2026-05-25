@@ -89,31 +89,6 @@ http://127.0.0.1:5000
 
 Первая сборка образа и первая загрузка модели могут занять значительное время. Для CUDA/GPU требуется отдельная Docker-конфигурация с совместимыми версиями PyTorch и NVIDIA Container Toolkit; текущий вариант ориентирован на CPU.
 
-## Подготовка для GitHub
-
-Проект содержит:
-
-- `.gitignore`, исключающий виртуальную среду, кеши модели и пользовательские изображения.
-- `.gitattributes` для согласованных переводов строк.
-- `.github/workflows/ci.yml`, проверяющий синтаксис Python, базовую фильтрацию маски чернил и корректность Docker Compose без загрузки OCR-модели.
-- `.gitkeep` в runtime-каталогах, чтобы пустые директории сохранялись в репозитории.
-
-Чтобы создать новый репозиторий и отправить проект на GitHub:
-
-```powershell
-git init
-git add .
-git commit -m "Initial handwriting OCR Flask project"
-git branch -M main
-git remote add origin <repository-url>
-git push -u origin main
-```
-
-Перед публикацией проверьте, что в индекс Git не попали реальные изображения или документы:
-
-```powershell
-git status --short
-```
 
 ## Структура проекта
 
